@@ -1,4 +1,4 @@
-# **RHS Mesial API** Django REST API
+# **RHS Mesial (Core/Central) API** Django REST API
 
 ![Riverbend High School](https://www.spotsylvania.k12.va.us/cms/lib/VA01918722/Centricity/Template/GlobalAssets/images///logos/RHS.png)
 
