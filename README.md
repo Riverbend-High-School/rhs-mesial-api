@@ -1,2 +1,2 @@
-# rhs mesial api
- Core API for RHS that has Misc. data & calendar feeds.
+# RHS Mesial API
+ Core API for RHS (Misc. Data & Calendar Feeds)
