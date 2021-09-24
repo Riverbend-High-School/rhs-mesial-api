@@ -5,6 +5,9 @@ from django.utils import timezone
 from django.utils.dateformat import format
 
 class ScheduleCalendar(models.Model):
+    class Meta:
+        verbose_name = 'Schedule Calendar'
+
     TYPES = (
         (0, 'Other'),
         (1, 'SCPS A/B Day Calendar'),
