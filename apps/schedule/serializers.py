@@ -5,4 +5,4 @@ from .models import *
 class ScheduleCalendarSerializer(serializers.ModelSerializer):
     class Meta:
         model = ScheduleCalendar
-        fields = '__all__'
+        fields = ('calendar_type', 'calendar_id')

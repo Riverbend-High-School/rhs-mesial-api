@@ -12,17 +12,23 @@ from .models import ScheduleCalendar
 
 global_events = []
 
-class Calendar_Type(Enum):
-    ABSchedule = 1
-    SpecialEvents = 2
+class Calendar_Type(str, Enum):
+    ABSchedule = "ABSchedule"
+    SpecialEvents = "SpecialEvents"
 
-class Day_Type(Enum):
-    Early_Release = 1
-    Late_Arrival = 2
-    Student_Teacher_Holiday = 3
-    Student_Holiday = 4
-    Other = 5
-    Normal = 6
+class Day_Type(str, Enum):
+    Early_Release = "Early Release"
+    Late_Arrival = "Late Arrival"
+    Student_Teacher_Holiday = "Student/Teacher Holiday"
+    Student_Holiday = "Student Holiday"
+    Other = "Other"
+    Normal = "Normal"
+
+    def __str__(self):
+        return self.value
+
+    def __repr__(self):
+        return self.value
 
 class Block(Enum):
     First = "A1"
@@ -85,6 +91,16 @@ def get_calendar_events(calendar_type):
     events = events_result.get('items', [])
 
     return dict(map(map_func, events))
+
+def get_current_day_type():
+    now = datetime.datetime.now()
+    date = now.strftime("%Y-%m-%d")
+    try:
+        todays_type = get_calendar_events(Calendar_Type.SpecialEvents)[date][0]
+    except KeyError:
+        todays_type = Day_Type.Normal 
+    
+    return [todays_type]
 
 def get_current_block():
     # I hate this :)
