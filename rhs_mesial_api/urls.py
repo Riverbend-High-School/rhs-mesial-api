@@ -11,6 +11,7 @@ urlpatterns = [
 
     # Project Apps
     path('schedule/', include('apps.schedule.urls')),
+    path('dashboard/', include('apps.dashboard.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
