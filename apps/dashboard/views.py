@@ -31,3 +31,13 @@ class MessageNoticeView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ActiveSlideView(APIView):
+    def get (self, request):
+        """
+        Get the message notice.
+        """
+        notice = Slide.objects.all().filter(approved=True, type=1, start__lte=datetime.now(), end__gte=datetime.now())
+        serializer = ActiveSlideSerializer(notice, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    

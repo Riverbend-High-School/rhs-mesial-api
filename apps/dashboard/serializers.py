@@ -11,3 +11,9 @@ class LightNoticeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LightNotice
         fields = '__all__'
+
+class ActiveSlideSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Slide
+        fields = ['id', 'message', 'path']
+
