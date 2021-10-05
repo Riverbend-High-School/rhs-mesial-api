@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import datetime, os
+import pytz
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from enum import Enum
@@ -104,7 +105,7 @@ def get_current_day_type():
 
 def get_current_block():
     # I hate this :)
-    now = datetime.datetime.now()
+    now = datetime.utc_now.astimezone(pytz.timezone("America/New_York"))
     date = now.strftime("%Y-%m-%d")
     hours = now.hour
     minutes = now.minute
