@@ -28,7 +28,7 @@ DEBUG = True
 CORS_ORIGIN_ALLOW_ALL = DEBUG
 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['mesial.gabrielhogan.com','mesialapi.gabrielhogan.com','*']
 
 
 # Application definition
@@ -73,6 +73,8 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:8080',
     'http://localhost',
     'http://*',
+    'https://mesial.gabrielhogan.com',
+    'https://rhsmesial.gabrielhogan.com',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
