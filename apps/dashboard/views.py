@@ -84,20 +84,28 @@ def get_calendar_events(calendar_id):
     creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 
     service = build('calendar', 'v3', credentials=creds)
+
+    eod_td = td(hours=23, minutes=59)
     
     now_raw = datetime.utcnow()
     now = datetime(now_raw.year, now_raw.month, now_raw.day)
+    eod = now + eod_td
     now_str = now.isoformat() + 'Z' # 'Z' indicates UTC time
+    eod_str = eod.isoformat() + 'Z'
     tomorrow = now + td(days=1)
-    tomorrow_str = tomorrow.isoformat() + 'Z' # 'Z' indicates UTC time
+    tomorrow_eod = tomorrow + eod_td
+    tomorrow_str = tomorrow.isoformat() + 'Z'
+    tomorrow_eod_str = tomorrow_eod.isoformat() + 'Z'
     two_days = tomorrow + td(days=1)
+    two_days_eod = tomorrow + td(days=5) + eod_td
     two_str = two_days.isoformat() + 'Z'
+    two_days_eod_str = two_days_eod.isoformat() + 'Z'
     later = tomorrow + td(days=6)
-    later_str = later.isoformat() + 'Z' # 'Z' indicates UTC time
+    later_str = later.isoformat() + 'Z'
 
-    now_events_result = service.events().list(calendarId=calendar_id, timeMin=now_str, timeMax=tomorrow_str, singleEvents=True, orderBy='startTime', maxResults=5).execute()
-    tomorrow_events_result = service.events().list(calendarId=calendar_id, timeMin=tomorrow_str, timeMax=two_str, singleEvents=True, orderBy='startTime', maxResults=5).execute()
-    week_events_result = service.events().list(calendarId=calendar_id, timeMin=two_str, timeMax=later_str, singleEvents=True, orderBy='startTime', maxResults=5).execute()
+    now_events_result = service.events().list(calendarId=calendar_id, timeMin=now_str, timeMax=eod_str, singleEvents=True, orderBy='startTime', maxResults=5).execute()
+    tomorrow_events_result = service.events().list(calendarId=calendar_id, timeMin=tomorrow_str, timeMax=tomorrow_eod_str, singleEvents=True, orderBy='startTime', maxResults=5).execute()
+    week_events_result = service.events().list(calendarId=calendar_id, timeMin=two_str, timeMax=two_days_eod_str, singleEvents=True, orderBy='startTime', maxResults=5).execute()
     later_events_result = service.events().list(calendarId=calendar_id, timeMin=later_str, singleEvents=True, orderBy='startTime', maxResults=5).execute()
 
     #{start, end, summary, location}
