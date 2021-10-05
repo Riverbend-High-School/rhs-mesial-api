@@ -3,6 +3,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('msgnotice/', views.MessageNoticeView.as_view()),
-    path('activeslides/', views.ActiveSlideView.as_view()),
+    path('msgnotice/', views.MessageNoticeListView.as_view()),
+    path('activeslides/', views.ActiveSlideListView.as_view()),
+    path('events/', views.UpcomingEventsListView.as_view()),
 ]

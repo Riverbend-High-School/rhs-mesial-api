@@ -69,3 +69,12 @@ class Slide(models.Model):
 
     def __str__(self):
         return self.message
+
+class EventCalendar(models.Model):
+    class Meta:
+        verbose_name = 'Events Calendar'
+
+    name = models.CharField(max_length=100)
+    author = models.CharField(max_length=50)
+    calendar_id = models.CharField(max_length=255)
+    enabled = models.BooleanField(default=False)
