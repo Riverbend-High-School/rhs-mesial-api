@@ -397,3 +397,4 @@ pip-selfcheck.json
 # End of https://www.toptal.com/developers/gitignore/api/jetbrains,pycharm,django,python,venv
 
 .env
+/slides
