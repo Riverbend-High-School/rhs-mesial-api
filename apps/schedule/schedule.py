@@ -112,7 +112,11 @@ def get_current_block():
         todays_type = get_calendar_events(Calendar_Type.SpecialEvents)[date][0]
     except KeyError:
         todays_type = Day_Type.Normal 
-    todays_block = get_calendar_events(Calendar_Type.ABSchedule)[date]
+
+    try:
+        todays_block = get_calendar_events(Calendar_Type.ABSchedule)[date]
+    except KeyError:
+        return [Block.Outside_Hours]
 
     if todays_type in [Day_Type.Student_Holiday, Day_Type.Student_Teacher_Holiday]:
         return [Block.Outside_Hours]
