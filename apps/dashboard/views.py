@@ -2,6 +2,7 @@ import os
 import re
 from datetime import date, datetime as dt
 from datetime import timedelta as td
+from django.utils import timezone
 from urllib.parse import scheme_chars
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
@@ -88,7 +89,7 @@ def get_calendar_events(calendar_id):
     eod_td = td(hours=23, minutes=59)
     timezone_str = '-04:00'
     
-    now_raw = datetime.utcnow()
+    now_raw = timezone.now()
     now = datetime(now_raw.year, now_raw.month, now_raw.day)
     eod = now + eod_td
     now_str = now.isoformat() + timezone_str # 'Z' indicates UTC time

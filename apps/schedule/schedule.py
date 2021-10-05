@@ -4,6 +4,7 @@ import datetime, os
 import pytz
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
+from django.utils import timezone
 from enum import Enum
 
 from rhs_mesial_api.settings import BASE_DIR
@@ -105,7 +106,7 @@ def get_current_day_type():
 
 def get_current_block():
     # I hate this :)
-    now = datetime.utc_now.astimezone(pytz.timezone("America/New_York"))
+    now = timezone.now()
     date = now.strftime("%Y-%m-%d")
     hours = now.hour
     minutes = now.minute
