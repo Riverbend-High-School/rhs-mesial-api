@@ -86,22 +86,23 @@ def get_calendar_events(calendar_id):
     service = build('calendar', 'v3', credentials=creds)
 
     eod_td = td(hours=23, minutes=59)
+    timezone_str = '-04:00'
     
     now_raw = datetime.utcnow()
     now = datetime(now_raw.year, now_raw.month, now_raw.day)
     eod = now + eod_td
-    now_str = now.isoformat() + 'Z' # 'Z' indicates UTC time
-    eod_str = eod.isoformat() + 'Z'
+    now_str = now.isoformat() + timezone_str # 'Z' indicates UTC time
+    eod_str = eod.isoformat() + timezone_str
     tomorrow = now + td(days=1)
     tomorrow_eod = tomorrow + eod_td
-    tomorrow_str = tomorrow.isoformat() + 'Z'
-    tomorrow_eod_str = tomorrow_eod.isoformat() + 'Z'
+    tomorrow_str = tomorrow.isoformat() + timezone_str
+    tomorrow_eod_str = tomorrow_eod.isoformat() + timezone_str
     two_days = tomorrow + td(days=1)
     two_days_eod = tomorrow + td(days=5) + eod_td
-    two_str = two_days.isoformat() + 'Z'
-    two_days_eod_str = two_days_eod.isoformat() + 'Z'
+    two_str = two_days.isoformat() + timezone_str
+    two_days_eod_str = two_days_eod.isoformat() + timezone_str
     later = tomorrow + td(days=6)
-    later_str = later.isoformat() + 'Z'
+    later_str = later.isoformat() + timezone_str
 
     now_events_result = service.events().list(calendarId=calendar_id, timeMin=now_str, timeMax=eod_str, singleEvents=True, orderBy='startTime', maxResults=5).execute()
     tomorrow_events_result = service.events().list(calendarId=calendar_id, timeMin=tomorrow_str, timeMax=tomorrow_eod_str, singleEvents=True, orderBy='startTime', maxResults=5).execute()
