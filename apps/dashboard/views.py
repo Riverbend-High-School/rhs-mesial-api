@@ -110,7 +110,6 @@ def get_calendar_events(calendar_id):
         }
 
     today = list(map(l_function, now_events_result.get('items', [])))
-    print(today)
     tomorrow = list(map(l_function, tomorrow_events_result.get('items', [])))
     week = list(map(l_function, week_events_result.get('items', [])))
     later = list(map(l_function, later_events_result.get('items', [])))
