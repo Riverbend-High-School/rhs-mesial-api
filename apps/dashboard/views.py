@@ -85,41 +85,35 @@ def get_calendar_events(calendar_id):
 
     service = build('calendar', 'v3', credentials=creds)
     
-    now = datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    events_result = service.events().list(calendarId=calendar_id, timeMin=now, singleEvents=True, orderBy='startTime', maxResults=5).execute()
-    events = events_result.get('items', [])
-    
+    now_raw = datetime.utcnow()
+    now = datetime(now_raw.year, now_raw.month, now_raw.day)
+    now_str = now.isoformat() + 'Z' # 'Z' indicates UTC time
+    tomorrow = now + td(days=1)
+    tomorrow_str = tomorrow.isoformat() + 'Z' # 'Z' indicates UTC time
+    two_days = tomorrow + td(days=1)
+    two_str = two_days.isoformat() + 'Z'
+    later = tomorrow + td(days=6)
+    later_str = later.isoformat() + 'Z' # 'Z' indicates UTC time
+
+    now_events_result = service.events().list(calendarId=calendar_id, timeMin=now_str, timeMax=tomorrow_str, singleEvents=True, orderBy='startTime', maxResults=5).execute()
+    tomorrow_events_result = service.events().list(calendarId=calendar_id, timeMin=tomorrow_str, timeMax=two_str, singleEvents=True, orderBy='startTime', maxResults=5).execute()
+    week_events_result = service.events().list(calendarId=calendar_id, timeMin=two_str, timeMax=later_str, singleEvents=True, orderBy='startTime', maxResults=5).execute()
+    later_events_result = service.events().list(calendarId=calendar_id, timeMin=later_str, singleEvents=True, orderBy='startTime', maxResults=5).execute()
+
     #{start, end, summary, location}
-    today = []
-    tomorrow = []
-    week = []
-    later = []
-
-    now = dt.now()
-
-    for event in events:
-        all_day = 'date' in event['start']
-        obj = {
+    l_function = lambda event: {
                 "start": event['start'].get('dateTime', event['start'].get('date')), 
                 "end": event['end'].get('dateTime', event['end'].get('date')),
-                "all_day": all_day,
+                "all_day": 'date' in event['start'],
                 "summary": event['summary'].strip(),
                 "location": event['location'] if 'location' in event else None
         }
-        if all_day:
-            time = date.fromisoformat(event['start'].get('dateTime', event['start'].get('date')))
-            time = datetime(time.year, time.month, time.day)
-        else:
-            time = datetime.fromisoformat(event['start'].get('dateTime', event['start'].get('date')))
-        #print(time.strftime('%Y-%m-%d'))
-        if time.strftime('%Y-%m-%d') == now.strftime('%Y-%m-%d'):
-            today.append(obj)
-        elif time.strftime('%Y-%m-%d') == (now + td(days=1)).strftime('%Y-%m-%d'):
-            tomorrow.append(obj)
-        elif (now + td(days=2)) < time < (now + td(days=7)):
-            week.append(obj)
-        else:
-            later.append(obj)
+
+    today = list(map(l_function, now_events_result.get('items', [])))
+    print(today)
+    tomorrow = list(map(l_function, tomorrow_events_result.get('items', [])))
+    week = list(map(l_function, week_events_result.get('items', [])))
+    later = list(map(l_function, later_events_result.get('items', [])))
 
     #print(events)
 
