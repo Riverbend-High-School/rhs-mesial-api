@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 import datetime, os
-import pytz
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from django.utils import timezone
