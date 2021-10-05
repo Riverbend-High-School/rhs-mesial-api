@@ -1,4 +1,7 @@
-import os, datetime
+import os
+import re
+from datetime import date, datetime as dt
+from datetime import timedelta as td
 from urllib.parse import scheme_chars
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
@@ -53,13 +56,22 @@ class UpcomingEventsListView(APIView):
         """
         calendars = EventCalendar.objects.all().filter(enabled=True)
 
-        events = []
+        events = {'today': [], 'tomorrow': [], 'week': [], 'later': []}
 
         for cal in calendars:
-            for event in get_calendar_events(cal.calendar_id):
-                events.append(event)
+            this_events = get_calendar_events(cal.calendar_id)
+            #print(this_events)
+            for (key, event_list) in this_events.items():
+                for event in event_list:
+                    events[key].append(event)
 
-        events.sort(key=lambda event: event['start'])
+        if len(events['today']) > 0:
+            # print(events)
+            events['today'].sort(key=lambda event: event['start'])
+        if len(events['tomorrow']) > 0:
+            events['tomorrow'].sort(key=lambda event: event['start'])
+        if len(events['later']) > 0:
+            events['later'].sort(key=lambda event: event['start'])
 
         return Response(events, status=status.HTTP_200_OK)
     
@@ -78,10 +90,39 @@ def get_calendar_events(calendar_id):
     events = events_result.get('items', [])
     
     #{start, end, summary, location}
+    today = []
+    tomorrow = []
+    week = []
+    later = []
 
-    return map(lambda event:    {
-                                    "start": event['start'].get('dateTime', event['start'].get('date')), 
-                                    "end": event['end'].get('dateTime', event['end'].get('date')), 
-                                    "summary": event['summary'].strip(),
-                                    "location": event['location'] if 'location' in event else None
-                                }, events)
+    now = dt.now()
+
+    for event in events:
+        all_day = 'date' in event['start']
+        obj = {
+                "start": event['start'].get('dateTime', event['start'].get('date')), 
+                "end": event['end'].get('dateTime', event['end'].get('date')),
+                "all_day": all_day,
+                "summary": event['summary'].strip(),
+                "location": event['location'] if 'location' in event else None
+        }
+        if all_day:
+            time = date.fromisoformat(event['start'].get('dateTime', event['start'].get('date')))
+            time = datetime(time.year, time.month, time.day)
+        else:
+            time = datetime.fromisoformat(event['start'].get('dateTime', event['start'].get('date')))
+        #print(time.strftime('%Y-%m-%d'))
+        if time.strftime('%Y-%m-%d') == now.strftime('%Y-%m-%d'):
+            today.append(obj)
+        elif time.strftime('%Y-%m-%d') == (now + td(days=1)).strftime('%Y-%m-%d'):
+            tomorrow.append(obj)
+        elif (now + td(days=2)) < time < (now + td(days=7)):
+            week.append(obj)
+        else:
+            later.append(obj)
+
+    #print(events)
+
+    out = {"today": today, "tomorrow": tomorrow, "week": week, "later": later}
+    #print(out)
+    return out
