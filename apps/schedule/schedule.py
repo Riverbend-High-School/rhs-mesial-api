@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-import datetime, os
+import datetime, os, json
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from django.utils import timezone
@@ -67,13 +67,6 @@ def get_calendar_events(calendar_type):
         calendar_type (Calendar_Type) : Enum specificying the calendar you wish to access
     """
 
-    creds = None
-    SERVICE_ACCOUNT_FILE = BASE_DIR / 'service.json'
-    SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
-
-    map_func = None
-    calendar_id = ""
-
     if calendar_type == Calendar_Type.ABSchedule:
         map_func = lambda event: (event['start'].get('dateTime', event['start'].get('date')), event['summary'].strip()[:1])
         calendar_id = ScheduleCalendar.objects.filter(calendar_type=1).first().calendar_id
@@ -81,14 +74,16 @@ def get_calendar_events(calendar_type):
         map_func = sort_special_events
         calendar_id = ScheduleCalendar.objects.filter(calendar_type=2).first().calendar_id
 
-    creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+    creds = service_account.Credentials.from_service_account_info(json.loads(os.getenv('SERVICE_JSON')), scopes=SCOPES)
+    
+    map_func = None
+    calendar_id = ""
 
     service = build('calendar', 'v3', credentials=creds)
     
     now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    events_result = service.events().list(calendarId=calendar_id, timeMin=now,
-                                        singleEvents=True,
-                                        orderBy='startTime').execute()
+    events_result = service.events().list(calendarId=calendar_id, timeMin=now, singleEvents=True, orderBy='startTime').execute()
     events = events_result.get('items', [])
 
     return dict(map(map_func, events))
