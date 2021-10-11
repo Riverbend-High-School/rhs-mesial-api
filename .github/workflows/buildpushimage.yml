@@ -32,4 +32,4 @@ jobs:
           context: .
           file: Dockerfile.dev
           push: true
-          tags: riverbendhighschool/rhs-mesial-api:latest
+          tags: riverbendhighschool/rhs-mesial-api:dev
