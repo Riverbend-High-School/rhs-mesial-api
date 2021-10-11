@@ -1,0 +1,26 @@
+FROM python:3.8.10
+
+# Disable Python Buffering
+ENV PYTHONUNBUFFERED 1
+
+# Copy the current directory to the conainer 
+# (Currently Used on Dev Machines Only)
+# COPY ./ /app
+
+# Pull Git Repo for Production Use
+RUN git clone https://github.com/Riverbend-High-School/rhs-mesial-dashboard.git /app
+
+# Set the working directory to /wgt-backend
+WORKDIR /app
+
+# Install any needed packages specified in requirements.txt
+RUN pip3 install -r requirements.txt
+
+# Create /app as volume
+VOLUME /app
+
+# Expose the server port
+EXPOSE 8000
+
+# Database Migration & Start Command
+CMD python manage.py makemigrations schedule dashboard && python manage.py migrate && python manage.py runserver 0.0.0.0:8000
