@@ -1,0 +1,29 @@
+# Git
+.git
+.gitignore
+
+# Docker
+.docker
+Dockerfile
+docker-compose.yml
+
+# Python
+app/__pycache__/
+app/*/__pycache__/
+app/*/*/__pycache__/
+app/*/*/*/__pycache__/
+.venv/
+venv/
+
+# Local Database
+# db.sqlite3  # using this for now
+data/
+
+# Other
+README.md
+LICENSE
+slides/
+
+# Secret Files
+.env/
+service.json
