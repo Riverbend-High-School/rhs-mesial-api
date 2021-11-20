@@ -78,7 +78,7 @@ class UpcomingEventsListView(APIView):
     
 def get_calendar_events(calendar_id):
     SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
-    creds = service_account.Credentials.from_service_account_info(json.loads(os.getenv('SERVICE_JSON')), scopes=SCOPES)
+    creds = service_account.Credentials.from_service_account_file(BASE_DIR / 'service/service.json', scopes=SCOPES)
 
     service = build('calendar', 'v3', credentials=creds)
 
