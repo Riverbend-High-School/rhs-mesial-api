@@ -1,6 +1,6 @@
 import os
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, isdir
 from rhs_mesial_api.settings import BASE_DIR
 
 from ..models import *
@@ -10,6 +10,9 @@ def moveService():
     SERVICE_DIR = BASE_DIR / 'service/'
     allFiles = [f for f in listdir(WORKING_DIR) if isfile(join(WORKING_DIR, f))]
     serviceFiles = [f for f in listdir(SERVICE_DIR) if isfile(join(SERVICE_DIR, f))]
+
+    if not isdir(SERVICE_DIR):
+        os.mkdir(SERVICE_DIR)
 
     if len(allFiles) != 1 or not ('service.json' in allFiles):
         return False
