@@ -16,3 +16,9 @@ class ScheduleCalendar(models.Model):
 
     calendar_type = models.IntegerField(default=0, choices=TYPES)
     calendar_id = models.CharField(max_length=255)
+
+class GoogleAPIServiceJSON(models.Model):
+    class Meta:
+        verbose_name = 'Google API Service JSON'
+    
+    file = models.FileField(upload_to='service/')

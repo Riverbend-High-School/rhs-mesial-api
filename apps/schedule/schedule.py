@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-import datetime, os, json
+import datetime, os
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from django.utils import timezone
@@ -73,13 +73,13 @@ def get_calendar_events(calendar_type):
     elif calendar_type == Calendar_Type.SpecialEvents:
         map_func = sort_special_events
         calendar_id = ScheduleCalendar.objects.filter(calendar_type=2).first().calendar_id
+    else:
+        return None
 
     SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
-    creds = service_account.Credentials.from_service_account_info(json.loads(os.getenv('SERVICE_JSON')), scopes=SCOPES)
+    SERVICE_ACCOUNT_FILE = BASE_DIR / 'service/service.json'
+    creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
     
-    map_func = None
-    calendar_id = ""
-
     service = build('calendar', 'v3', credentials=creds)
     
     now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time

@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from .serializers import *
 from .models import *
 from .schedule import *
-
+from .utilities.move_service import moveService
 class ScheduleCalendarListView(APIView):
     def get (self, request):
         """
@@ -88,3 +88,15 @@ class ScheduleView(APIView):
         return Response(json, status=status.HTTP_200_OK)
 
 
+class ServiceUpdateView(APIView):
+    def get(self, request):
+        """
+        Update Service JSON
+        """
+        result = moveService()
+        
+        json = {
+            "value": "success" if result else "failed"
+        }
+
+        return Response(json, status=status.HTTP_200_OK if result else status.HTTP_400_BAD_REQUEST)

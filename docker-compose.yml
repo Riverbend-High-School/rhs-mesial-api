@@ -6,9 +6,14 @@ services:
     environment:
       DEBUG: True
       SECRET_KEY: 'Generate Django Secret For Here'
-      SERVICE_JSON: 'Google Service Account JSON w/ no New Lines'
+    volume: 
+      - rhs-mesial-api:/app
+    ports:
+      - '8000:8000'
+
     build:
       context: .
       dockerfile: Dockerfile.dev
-    ports:
-      - '8000:8000'
+
+volumes:
+  rhs-mesial-api:
