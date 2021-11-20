@@ -8,11 +8,16 @@ from ..models import *
 def moveService():
     WORKING_DIR = BASE_DIR / 'media/service/'
     SERVICE_DIR = BASE_DIR / 'service/'
-    allFiles = [f for f in listdir(WORKING_DIR) if isfile(join(WORKING_DIR, f))]
-    serviceFiles = [f for f in listdir(SERVICE_DIR) if isfile(join(SERVICE_DIR, f))]
 
     if not isdir(SERVICE_DIR):
         os.mkdir(SERVICE_DIR)
+    
+    if not isdir(WORKING_DIR):
+        os.mkdir(WORKING_DIR)
+    
+    allFiles = [f for f in listdir(WORKING_DIR) if isfile(join(WORKING_DIR, f))]
+    serviceFiles = [f for f in listdir(SERVICE_DIR) if isfile(join(SERVICE_DIR, f))]
+
 
     if len(allFiles) != 1 or not ('service.json' in allFiles):
         return False

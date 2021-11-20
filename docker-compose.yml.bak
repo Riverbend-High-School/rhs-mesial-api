@@ -5,9 +5,15 @@ services:
     container_name: django
     environment:
       DEBUG: True
+      SECRET_KEY: 'Generate Django Secret For Here'
+    volume: 
+      - rhs-mesial-api:/app
     ports:
       - '8000:8000'
 
     build:
       context: .
       dockerfile: Dockerfile.dev
+
+volumes:
+  rhs-mesial-api:
