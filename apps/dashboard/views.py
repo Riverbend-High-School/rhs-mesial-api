@@ -65,14 +65,10 @@ class UpcomingEventsListView(APIView):
             for (key, event_list) in this_events.items():
                 for event in event_list:
                     events[key].append(event)
-
-        if len(events['today']) > 0:
-            # print(events)
-            events['today'].sort(key=lambda event: event['start'])
-        if len(events['tomorrow']) > 0:
-            events['tomorrow'].sort(key=lambda event: event['start'])
-        if len(events['later']) > 0:
-            events['later'].sort(key=lambda event: event['start'])
+                if len(events[key]) > 0:
+                    events[key] = sorted(events[key], key=lambda x: x['start'])
+                if len(events[key]) > 5:
+                    events[key] = events[key][:5]
 
         return Response(events, status=status.HTTP_200_OK)
     
@@ -116,8 +112,11 @@ def get_calendar_events(calendar_id):
         }
 
     today = list(map(l_function, now_events_result.get('items', [])))
+
     tomorrow = list(map(l_function, tomorrow_events_result.get('items', [])))
+
     week = list(map(l_function, week_events_result.get('items', [])))
+
     later = list(map(l_function, later_events_result.get('items', [])))
 
     #print(events)
