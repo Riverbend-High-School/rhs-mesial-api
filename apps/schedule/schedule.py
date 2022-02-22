@@ -98,85 +98,92 @@ def get_current_day_type():
     
     return [todays_type]
 
-def is_between(now, start, end):
-    return start <= now <= end
-
 def get_current_block():
-    # now = datetime.datetime.now().time()
-    now = datetime.time(12, 54)
-    date = timezone.now().strftime("%Y-%m-%d")
-
+    # I hate this :)
+    now = timezone.now()
+    date = now.strftime("%Y-%m-%d")
+    hours = now.hour
+    minutes = now.minute
     try:
         todays_type = get_calendar_events(Calendar_Type.SpecialEvents)[date][0]
     except KeyError:
-        # print("Failed to get today's type!")
-        # print(get_calendar_events(Calendar_Type.SpecialEvents))
         todays_type = Day_Type.Normal 
 
     try:
         todays_block = get_calendar_events(Calendar_Type.ABSchedule)[date]
     except KeyError:
-        # print("Failed to figure out if today is an A day or B day!")
         return [Block.Outside_Hours]
-
-    early_release_blocks = [
-        (datetime.time(7, 35), datetime.time(8, 24), (Block.First, Block.Fifth)),
-        (datetime.time(8, 25), datetime.time(8, 29), (Block.Between_Classes, Block.Between_Classes)),
-        (datetime.time(8, 30), datetime.time(9, 19), (Block.Second, Block.Sixth)),
-        (datetime.time(9, 20), datetime.time(9, 24), (Block.Between_Classes, Block.Between_Classes)),
-        (datetime.time(9, 25), datetime.time(10, 14), (Block.Third, Block.Seventh)),
-        (datetime.time(10, 15), datetime.time(10, 19), (Block.Between_Classes, Block.Between_Classes)),
-        (datetime.time(10, 20), datetime.time(11, 15), (Block.Fourth, Block.Eighth)),
-    ]
-
-    late_arrival_blocks = [
-        (datetime.time(9, 35), datetime.time(10, 34), (Block.First, Block.Fifth)),
-        (datetime.time(10, 35), datetime.time(10, 39), (Block.Between_Classes, Block.Between_Classes)),
-        (datetime.time(10, 40), datetime.time(11, 39), (Block.Second, Block.Sixth)),
-        (datetime.time(11, 40), datetime.time(11, 44), (Block.Between_Classes, Block.Between_Classes)),
-        (datetime.time(11, 45), datetime.time(13, 14), (Block.Third, Block.Seventh)),
-        (datetime.time(13, 15), datetime.time(13, 19), (Block.Between_Classes, Block.Between_Classes)),
-        (datetime.time(13, 20), datetime.time(14, 20), (Block.Fourth, Block.Eighth)),
-    ]
-    late_arrival_lunches = [
-        (datetime.time(11, 45), datetime.time(12, 10), Block.First_Lunch),
-        (datetime.time(12, 15), datetime.time(12, 40), Block.Second_Lunch),
-        (datetime.time(12, 50), datetime.time(13, 15), Block.Third_Lunch),
-    ]
-
-    normal_blocks = [
-        (datetime.time(7, 35), datetime.time(8, 54), (Block.First, Block.Fifth)),
-        (datetime.time(8, 55), datetime.time(8, 59), (Block.Between_Classes, Block.Between_Classes)),
-        (datetime.time(9, 0), datetime.time(10, 19), (Block.Second, Block.Sixth)),
-        (datetime.time(10, 20), datetime.time(10, 24), (Block.Between_Classes, Block.Between_Classes)),
-        (datetime.time(10, 25), datetime.time(10, 59), (Block.Bear_Block, Block.Bear_Block)),
-        (datetime.time(11, 0), datetime.time(11, 4), (Block.Between_Classes, Block.Between_Classes)),\
-        (datetime.time(11, 5), datetime.time(12, 54), (Block.Third, Block.Seventh)),
-        (datetime.time(12, 55), datetime.time(12, 59), (Block.Between_Classes, Block.Between_Classes)),
-        (datetime.time(13, 0), datetime.time(14, 20), (Block.Fourth, Block.Eighth)),
-    ]
-    normal_lunches = [
-        (datetime.time(11, 5), datetime.time(11, 30), Block.First_Lunch),
-        (datetime.time(11, 45), datetime.time(12, 10), Block.Second_Lunch),
-        (datetime.time(12, 30), datetime.time(12, 55), Block.Third_Lunch),
-    ]
 
     if todays_type in [Day_Type.Student_Holiday, Day_Type.Student_Teacher_Holiday]:
         return [Block.Outside_Hours]
     elif todays_type == Day_Type.Early_Release:
-        for start, end, (a_day, b_day) in early_release_blocks:
-            if start <= now <= end:
-                return [a_day if todays_block == "A" else b_day]
-        return [Block.Outside_Hours]
+        if (hours == 7 and minutes >= 35) or (hours == 8 and minutes <= 25):
+            return [Block.First if todays_block == "A" else Block.Fifth]
+        elif (hours == 8 and 25 < minutes < 30):
+            return [Block.Between_Classes]
+        elif (hours == 8 and minutes >= 30) or (hours == 9 and minutes <= 20):
+            return [Block.Second if todays_block == "A" else Block.Sixth]
+        elif hours == 9 and 20 < minutes < 25:
+            return [Block.Between_Classes]
+        elif (hours == 9 and minutes >= 25) or (hours == 10 and minutes <= 15):
+            return [Block.Third if todays_block == "A" else Block.Seventh]
+        elif hours == 10 and 15 < minutes < 20:
+            return [Block.Between_Classes]
+        elif hours == 10 or (hours == 11 and minutes <= 15):
+            return [Block.Fourth if todays_block == "A" else Block.Eighth]
+        else:
+            return [Block.Outside_Hours]
+    elif todays_type == Day_Type.Late_Arrival:
+        if (hours == 9 and minutes >= 35) or (hours == 10 and minutes <= 35):
+            return [Block.First if todays_block == "A" else Block.Fifth]
+        elif (hours == 10 and 35 < minutes < 40):
+            return [Block.Between_Classes]
+        elif (hours == 10 and minutes >= 40) or (hours == 11 and minutes <= 40):
+            return [Block.Second if todays_block == "A" else Block.Sixth]
+        elif hours == 11 and 40 < minutes < 45:
+            return [Block.Between_Classes]
+        elif (hours == 11 and minutes >= 45) or (hours == 1 and minutes <= 15):
+            day_block = Block.Third if todays_block == "A" else Block.Seventh
+            if (hours == 11 and minutes >= 45) or (hours == 12 and minutes <= 10):
+                return [day_block, Block.First_Lunch]
+            elif hours == 12 and 15 <= minutes <= 40:
+                return [day_block, Block.Second_Lunch]
+            elif (hours == 12 and minutes >= 50) or (hours == 1 and minutes <= 15):
+                return [day_block, Block.Third_Lunch]
+            else:
+                return [day_block]
+        elif hours == 13 and 15 < minutes < 20:
+            return [Block.Between_Classes]
+        elif (hours == 13 and minutes >= 20) or (hours == 14 and minutes <= 20):
+            return [Block.Fourth if todays_block == "A" else Block.Eighth]
+        else:
+            return [Block.Outside_Hours]
     else:
-        blocks, lunches = (late_arrival_blocks, late_arrival_lunches) if todays_type == Day_Type.Late_Arrival else (normal_blocks, normal_lunches)
-        for start, end, (a_day, b_day) in blocks:
-            if start <= now <= end:
-                returnable = [a_day if todays_block == "A" else b_day]
-                if a_day == Block.Third:
-                    for lunch_start, lunch_end, lunch in lunches:
-                        if lunch_start <= now <= lunch_end:
-                            returnable.append(lunch)
-                            break
-                return returnable
-        return [Block.Outside_Hours]
+        if (hours == 7 and minutes >= 35) or (hours == 8 and minutes <= 55):
+            return [Block.First if todays_block == "A" else Block.Fifth]
+        elif (hours == 8 and minutes > 55):
+            return [Block.Between_Classes]
+        elif hours == 9 or (hours == 10 and minutes <= 20):
+            return [Block.Second if todays_block == "A" else Block.Sixth]
+        elif hours == 10 and 20 < minutes < 25:
+            return [Block.Between_Classes]
+        elif (hours == 10 and minutes >= 25) or (hours == 11 and minutes == 0):
+            return [Block.Bear_Block]
+        elif hours == 11 and 0 < minutes < 5:
+            return [Block.Between_Classes]
+        elif (hours == 11 and minutes >= 5) or (hours == 12 and minutes <= 55):
+            day_block = Block.Third if todays_block == "A" else Block.Seventh
+            if hours == 11 and 5 <= minutes <= 30:
+                return [day_block, Block.First_Lunch]
+            elif (hours == 11 and minutes >= 45) or (hours == 12 and minutes <= 10):
+                return [day_block, Block.Second_Lunch]
+            elif hours == 12 and 30 <= minutes <= 55:
+                return [day_block, Block.Third_Lunch]
+            else:
+                return [day_block]
+        elif hours == 12 and minutes > 55:
+            return [Block.Between_Classes]
+        elif hours == 13 or (hours == 14 and minutes <= 20):
+            return [Block.Fourth if todays_block == "A" else Block.Eighth]
+        else:
+            return [Block.Outside_Hours]
