@@ -65,7 +65,7 @@ class UpcomingEventsListView(APIView):
             for (key, event_list) in this_events.items():
                 for event in event_list:
                     events[key].append(event)
-
+        # print(events)
         if len(events['today']) > 0:
             # print(events)
             events['today'].sort(key=lambda event: event['start'])
@@ -75,7 +75,33 @@ class UpcomingEventsListView(APIView):
             events['later'].sort(key=lambda event: event['start'])
 
         return Response(events, status=status.HTTP_200_OK)
-    
+
+def map_events(event_tuple):
+    event, time_period = event_tuple
+    out = {
+        "start": event['start'].get('dateTime', event['start'].get('date')), 
+        "end": event['end'].get('dateTime', event['end'].get('date')),
+        "all_day": 'date' in event['start'],
+        "summary": event['summary'].strip(),
+        "location": event['location'] if 'location' in event else None
+    }
+
+    if out["all_day"]:
+        working_day = ""
+        if time_period == "today":
+            working_day = dt.now().strftime('%Y-%m-%d')
+        elif time_period == "tomorrow":
+            working_day = (dt.now() + td(days=1)).strftime('%Y-%m-%d')
+        else:
+            return out
+
+        start = dt.strptime(out["start"], '%Y-%m-%d')
+        end = dt.strptime(out["end"], '%Y-%m-%d')
+
+        if start + td(days=1) == end and working_day == out["end"]:
+            return None
+    return out
+
 def get_calendar_events(calendar_id):
     SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
     creds = service_account.Credentials.from_service_account_file(BASE_DIR / 'service/service.json', scopes=SCOPES)
@@ -107,18 +133,19 @@ def get_calendar_events(calendar_id):
     later_events_result = service.events().list(calendarId=calendar_id, timeMin=later_str, singleEvents=True, orderBy='startTime', maxResults=5).execute()
 
     #{start, end, summary, location}
-    l_function = lambda event: {
-                "start": event['start'].get('dateTime', event['start'].get('date')), 
-                "end": event['end'].get('dateTime', event['end'].get('date')),
-                "all_day": 'date' in event['start'],
-                "summary": event['summary'].strip(),
-                "location": event['location'] if 'location' in event else None
-        }
+    filter_none = lambda x: x != None
 
-    today = list(map(l_function, now_events_result.get('items', [])))
-    tomorrow = list(map(l_function, tomorrow_events_result.get('items', [])))
-    week = list(map(l_function, week_events_result.get('items', [])))
-    later = list(map(l_function, later_events_result.get('items', [])))
+    today_raw = now_events_result.get('items', [])
+    today = list(filter(filter_none, map(map_events, zip(today_raw, ['today'] * len(today_raw)))))
+
+    tomorrow_raw = tomorrow_events_result.get('items', [])
+    tomorrow = list(filter(filter_none, map(map_events, zip(tomorrow_raw, ['tomorrow'] * len(tomorrow_raw)))))
+
+    week_raw = week_events_result.get('items', [])
+    week = list(map(map_events, zip(week_raw, [0] * len(week_raw))))
+
+    later_raw = later_events_result.get('items', [])
+    later = list(map(map_events, zip(later_raw, [0] * len(later_raw))))
 
     #print(events)
 
