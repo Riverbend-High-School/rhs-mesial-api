@@ -8,7 +8,7 @@
 
 This repository contains the API server code for the mesial (core/central) api for use throughout school web/server applications in addition to the school information dashboards. This api contains basic information such as current block, day schedule, upcoming events, etc.
 
-This RESTful API is running on Python 3.8 using the [Django REST Framework](https://www.django-rest-framework.org/). It is designed to be used in a variety of applications throughout the school. A frontend implementation can be seen in the RHS Information Dashboard frontend implementation [Github Repo Here (Coming Soon)](https://github.com/Riverbend-High-School/rhs-mesial-api/).
+This RESTful API is running on Python 3.8 using the [Django REST Framework](https://www.django-rest-framework.org/). It is designed to be used in a variety of applications throughout the school. A frontend implementation can be seen in the RHS Information Dashboard frontend implementation [Github Repo Here](https://github.com/Riverbend-High-School/rhs-mesial-dashboard).
 
 Created by [Samuel Rembisz](https://github.com/StappsWorld) & [Gabriel Hogan](https://github.com/GabrielHogan)
 
